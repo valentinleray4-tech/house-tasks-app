@@ -155,7 +155,19 @@ export default function Home() {
 
         if (!error) setRefreshKey(old => old + 1)
     }
+async function resetAllData() {
+        if (!confirm("Attention : cette action va supprimer TOUTES les activités et remettre les points à zéro. Es-tu sûr ?")) return;
 
+        const { error } = await supabase
+            .from('task_logs')
+            .delete()
+            .neq('id', 0); // Supprime toutes les lignes
+
+        if (!error) {
+            setRefreshKey(old => old + 1);
+            alert("Réinitialisation terminée !");
+        }
+    }
     async function completeTaskAction(taskId) {
         if (!currentUserId) return
 
@@ -320,7 +332,12 @@ export default function Home() {
                                     </div>
 
                                     <hr className="border-gray-200" />
-
+<button
+    onClick={resetAllData}
+    className="w-full bg-orange-50 hover:bg-orange-100 text-orange-600 font-semibold py-3 px-4 rounded-xl text-xs transition-colors border border-orange-100 mt-4"
+>
+    Réinitialiser toutes les tâches et points
+</button>
                                     {/* Réglage des notifications */}
                                     <div className="space-y-4">
                                         <label className="flex items-center justify-between cursor-pointer">

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { supabase } from '../lib/supabase' // IMPORT ESSENTIEL
+import { supabase } from '../lib/supabase'
 
 export default function TaskRow({ task, lastLog, completeTaskAction }) {
     const [isPending, startTransition] = useTransition()
@@ -9,6 +9,33 @@ export default function TaskRow({ task, lastLog, completeTaskAction }) {
     const [currentX, setCurrentX] = useState(0)
     const [isSwiping, setIsSwiping] = useState(false)
 
+    // --- GESTION DU SWIPE (Remise en place) ---
+    const handleTouchStart = (e) => {
+        if (isPending) return
+        setStartX(e.touches[0].clientX)
+        setIsSwiping(true)
+    }
+
+    const handleTouchMove = (e) => {
+        if (!isSwiping) return
+        const moveX = e.touches[0].clientX - startX
+        if (moveX > 0) setCurrentX(moveX) // Swipe vers la droite pour valider
+        else if (moveX < -50) setCurrentX(moveX) // Swipe vers la gauche pour découvrir le bouton supprimer
+    }
+
+    const handleTouchEnd = () => {
+        setIsSwiping(false)
+        if (currentX > 140) {
+            startTransition(async () => {
+                await completeTaskAction(task.id)
+                setCurrentX(0)
+            })
+        } else {
+            setCurrentX(0)
+        }
+    }
+
+    // ... ton code de couleur et ton JSX restent identiques
     // Logique de couleur... (ton code actuel est parfait)
     let colorHex = "#10b981"
     if (lastLog?.done_at) {

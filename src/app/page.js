@@ -168,6 +168,19 @@ async function resetAllData() {
             alert("Réinitialisation terminée !");
         }
     }
+    async function resetAllScores() {
+        if (!confirm("Attention : cette action va remettre tous les points à zéro sans supprimer les tâches. Es-tu sûr ?")) return;
+
+        const { error } = await supabase
+            .from('task_logs')
+            .delete()
+            .neq('id', 0);
+
+        if (!error) {
+            setRefreshKey(old => old + 1);
+            alert("Scores réinitialisés !");
+        }
+    }
     async function completeTaskAction(taskId) {
         if (!currentUserId) return
 
@@ -301,8 +314,7 @@ async function resetAllData() {
                                                     <div key={log.id} className="py-2.5 first:pt-0 last:pb-0 flex justify-between items-center text-xs">
                                                         <div className="min-w-0 pr-2">
                                                             <p className="text-gray-700 font-medium truncate">
-                                                                <span className="font-bold text-indigo-600">{log.profiles?.name}</span> a fait <span className="font-semibold text-gray-800">"{matchingTask?.title || 'Une corvée'}"</span>
-                                                            </p>
+                                                                <span className="font-semibold text-gray-800">&quot;{matchingTask?.title || 'Une corvée'}&quot;</span>                                                            </p>
                                                             <p className="text-[10px] text-gray-400 mt-0.5">{formattedDate}</p>
                                                         </div>
                                                         <span className="font-bold text-emerald-600 shrink-0 bg-emerald-50 px-1.5 py-0.5 rounded">
@@ -335,7 +347,13 @@ async function resetAllData() {
 <button
     onClick={resetAllData}
     className="w-full bg-orange-50 hover:bg-orange-100 text-orange-600 font-semibold py-3 px-4 rounded-xl text-xs transition-colors border border-orange-100 mt-4"
->
+                                    >
+                                        <button
+                                            onClick={resetAllScores}
+                                            className="w-full bg-blue-50 hover:bg-blue-100 text-blue-600 font-semibold py-3 px-4 rounded-xl text-xs transition-colors border border-blue-100 mt-2"
+                                        >
+                                            🔄 Réinitialiser uniquement les scores
+                                        </button>
     Réinitialiser toutes les tâches et points
 </button>
                                     {/* Réglage des notifications */}
